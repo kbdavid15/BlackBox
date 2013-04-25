@@ -15,19 +15,22 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
+        TextView textView = (TextView)findViewById(R.id.textView1);
         // set up bluetooth
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
-        	//TODO Device does not support bluetooth
-        	TextView textView = (TextView)findViewById(R.id.textView1);
+        	//TODO Device does not support bluetooth        	
         	textView.setText("Bluetooth not supported");
         	return;
         }
         // make sure bluetooth is enabled, otherwise ask user to enable it
-        if (!mBluetoothAdapter.isEnabled()) {
-        	Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        	startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        try {
+	        if (!mBluetoothAdapter.isEnabled()) {
+	        	Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+	        	startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+	        }
+        } catch (Exception e) {
+        	textView.setText(e.toString());
         }
     }
 
