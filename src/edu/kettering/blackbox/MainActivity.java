@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.view.Menu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +33,9 @@ public class MainActivity extends Activity {
         } catch (Exception e) {
         	textView.setText(e.toString());
         }
+        
+        // add event listener for changes in bluetooth state (such as being turned off during operation)
+        IntentFilter listenBtIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
     }
 
 
@@ -55,5 +59,4 @@ public class MainActivity extends Activity {
     		
     	}
     }
-    
 }
