@@ -17,6 +17,7 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
 	private static final int REQUEST_ENABLE_BT = 1;
 	private BluetoothReceiver btReceiver;
+	public BluetoothDevice btOBD2device;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,8 +90,20 @@ public class MainActivity extends Activity {
         
         
         // connect to the device
+        for (BluetoothDevice device : pairedDevices) {
+        	if (device.getName().contains("OBDII")) {
+        		// this is most likely the correct device.
+        		//TODO provide a way for the user to change/choose the bluetooth device to connect to
+        		btOBD2device = device;
+        		break;
+        	}
+        }
         
-        
+        // if the device is found
+        if (btOBD2device != null) {        
+        	
+        	
+        }
     }
 
 
