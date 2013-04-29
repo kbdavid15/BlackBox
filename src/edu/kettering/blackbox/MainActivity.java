@@ -18,6 +18,7 @@ public class MainActivity extends Activity {
 	private static final int REQUEST_ENABLE_BT = 1;
 	private BluetoothReceiver btReceiver;
 	public BluetoothDevice btOBD2device;
+	public static BluetoothAdapter mBluetoothAdapter;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +31,7 @@ public class MainActivity extends Activity {
         ArrayAdapter<String> mArrayAdapterPairedDevices = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
         
         // set up bluetooth
-        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
         	//TODO Device does not support bluetooth        	
         	textView.setText("Bluetooth not supported");
@@ -101,8 +102,8 @@ public class MainActivity extends Activity {
         
         // if the device is found
         if (btOBD2device != null) {        
-        	
-        	
+        	ConnectThread thread = new ConnectThread(btOBD2device);
+        	thread.run();        	
         }
     }
 
