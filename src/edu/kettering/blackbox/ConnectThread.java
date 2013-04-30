@@ -27,7 +27,7 @@ public class ConnectThread extends Thread {
     public void run() {
         // Cancel discovery because it will slow down the connection
         MainActivity.mBluetoothAdapter.cancelDiscovery();
- 
+        
         try {
             // Connect the device through the socket. This will block
             // until it succeeds or throws an exception
