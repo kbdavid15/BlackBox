@@ -6,12 +6,17 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.view.inputmethod.EditorInfo;
 import android.widget.*;
 
 import java.util.UUID;
@@ -306,27 +311,4 @@ public class BluetoothChat extends Activity {
         inflater.inflate(R.menu.option_menu, menu);
         return true;
     }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Intent serverIntent = null;
-        switch (item.getItemId()) {
-        case R.id.secure_connect_scan:
-            // Launch the DeviceListActivity to see devices and do scan
-            serverIntent = new Intent(this, DeviceListActivity.class);
-            startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_SECURE);
-            return true;
-        case R.id.insecure_connect_scan:
-            // Launch the DeviceListActivity to see devices and do scan
-            serverIntent = new Intent(this, DeviceListActivity.class);
-            startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_INSECURE);
-            return true;
-        case R.id.discoverable:
-            // Ensure this device is discoverable by others
-            ensureDiscoverable();
-            return true;
-        }
-        return false;
-    }
-
 }

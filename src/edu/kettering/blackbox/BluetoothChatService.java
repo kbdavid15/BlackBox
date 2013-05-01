@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 
 /**
