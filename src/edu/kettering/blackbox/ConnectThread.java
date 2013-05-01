@@ -9,6 +9,7 @@ import android.bluetooth.BluetoothSocket;
 public class ConnectThread extends Thread {
 	private final BluetoothSocket mmSocket;
     private final BluetoothDevice mmDevice;
+    private final UUID MY_UUID_SECURE = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
  
     public ConnectThread(BluetoothDevice device) {
         // Use a temporary object that is later assigned to mmSocket,
@@ -19,7 +20,7 @@ public class ConnectThread extends Thread {
         // Get a BluetoothSocket to connect with the given BluetoothDevice
         try {
             // MY_UUID is the app's UUID string, also used by the server code
-            tmp = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805f9b34fb"));
+            tmp = device.createRfcommSocketToServiceRecord(MY_UUID_SECURE);
         } catch (IOException e) { }
         mmSocket = tmp;
     }
