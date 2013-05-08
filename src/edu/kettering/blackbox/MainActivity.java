@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import edu.kettering.blackbox.bluetooth.BluetoothReceiver;
+//import edu.kettering.blackbox.bluetooth.BluetoothService;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -19,6 +20,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
+import android.view.View;
+import android.view.ViewGroup.MarginLayoutParams;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -29,9 +34,13 @@ public class MainActivity extends Activity {
 	private BluetoothReceiver btReceiver;
 	public BluetoothDevice btOBD2device;
 	public static BluetoothAdapter mBluetoothAdapter;
+	private Set<BluetoothDevice> pairedDevices;
 	private static Handler mHandler;
 	private final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 	private final String NAME = "BluetoothOBD2Service";
+	// The service that connects to the device
+//	private BluetoothService mBluetoothService;
+	private ArrayAdapter<String> mArrayAdapterPairedDevices;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +50,10 @@ public class MainActivity extends Activity {
         TextView textView = (TextView)findViewById(R.id.textView1);
         ListView listViewPairedDevices = (ListView)findViewById(R.id.listViewPairedDevices);
         // create an array adapter for the listview
-        ArrayAdapter<String> mArrayAdapterPairedDevices = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+        mArrayAdapterPairedDevices = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+        
+        // add onClick listener for listview
+        listViewPairedDevices.setOnItemClickListener(selectPairedDeviceListener);        
         
         // set up bluetooth
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -65,7 +77,7 @@ public class MainActivity extends Activity {
         
         //TODO paired device list not populated if bluetooth is not enabled before starting the app
         // find devices (first look through paired devices to find the correct one)
-        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+        pairedDevices = mBluetoothAdapter.getBondedDevices();
         if (pairedDevices.size() > 0) {        	
         	// Loop through paired devices
         	for (BluetoothDevice device : pairedDevices) {
@@ -103,15 +115,15 @@ public class MainActivity extends Activity {
 //        startActivity(new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS));
         
         
-        // connect to the device
-        for (BluetoothDevice device : pairedDevices) {
-        	if (device.getName().contains("OBDII")) {
-        		// this is most likely the correct device.
-        		//TODO provide a way for the user to change/choose the bluetooth device to connect to
-        		btOBD2device = device;
-        		break;
-        	}
-        }
+////         connect to the device
+//        for (BluetoothDevice device : pairedDevices) {
+//        	if (device.getName().contains("OBDII")) {
+//        		// this is most likely the correct device.
+//        		//TODO provide a way for the user to change/choose the bluetooth device to connect to
+//        		btOBD2device = device;
+//        		break;
+//        	}
+//        }
         
 //        // if the device is found
 //        if (btOBD2device != null) {
@@ -130,6 +142,18 @@ public class MainActivity extends Activity {
 //        	thread.run();
 //        }
     }
+    
+    private OnItemClickListener selectPairedDeviceListener = new OnItemClickListener() {
+    	@Override
+    	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    		// connect to the device that the user chose
+    		btOBD2device = (BluetoothDevice) pairedDevices.toArray()[position];
+    		
+    		
+			Toast.makeText(getBaseContext(), btOBD2device.getName(), Toast.LENGTH_LONG).show();
+		}
+    	
+    };
 
 
     @Override
@@ -160,113 +184,6 @@ public class MainActivity extends Activity {
     	// unregister BroadcastReceiver
     	unregisterReceiver(btReceiver);
     	super.onDestroy();
-    }
-    
-    private class AcceptThread extends Thread {
-        private final BluetoothServerSocket mmServerSocket;
-     
-        public AcceptThread() {
-            // Use a temporary object that is later assigned to mmServerSocket,
-            // because mmServerSocket is final
-            BluetoothServerSocket tmp = null;
-            try {
-                // MY_UUID is the app's UUID string, also used by the client code
-                tmp = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(NAME, MY_UUID);
-            } catch (IOException e) { }
-            mmServerSocket = tmp;
-        }
-     
-        public void run() {
-            BluetoothSocket socket = null;
-            // Keep listening until exception occurs or a socket is returned
-            while (true) {
-                try {
-                    socket = mmServerSocket.accept();
-                } catch (IOException e) {
-                    break;
-                }
-                // If a connection was accepted
-                if (socket != null) {
-                    // Do work to manage the connection (in a separate thread)
-                    //manageConnectedSocket(socket);
-                    try {
-						mmServerSocket.close();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-                    break;
-                }
-            }
-        }
-     
-        /** Will cancel the listening socket, and cause the thread to finish */
-        public void cancel() {
-            try {
-                mmServerSocket.close();
-            } catch (IOException e) { }
-        }
-    }
-    
-    public class OBD2Device extends Thread {
-    	public final int MESSAGE_READ = 0xAAAA;
-    	
-    	private final BluetoothSocket mmSocket;
-        private final InputStream mmInStream;
-        private final OutputStream mmOutStream;
-        
-        /**
-         * Class constructor for the device
-         * @param socket	The Bluetooth socket created in ConnectThread
-         */
-        public OBD2Device(BluetoothSocket socket) {
-            mmSocket = socket;
-            InputStream tmpIn = null;
-            OutputStream tmpOut = null;
-     
-            // Get the input and output streams, using temp objects because
-            // member streams are final
-            try {
-                tmpIn = socket.getInputStream();
-                tmpOut = socket.getOutputStream();
-            } catch (IOException e) { }
-     
-            mmInStream = tmpIn;
-            mmOutStream = tmpOut;
-        }
-     
-        public void run() {
-            byte[] buffer = new byte[1024];  // buffer store for the stream
-            int bytes; // bytes returned from read()
-     
-            // Keep listening to the InputStream until an exception occurs
-            while (true) {
-                try {
-                    // Read from the InputStream
-                    bytes = mmInStream.read(buffer);
-                    // Send the obtained bytes to the UI activity
-                    mHandler.obtainMessage(MESSAGE_READ, bytes, -1, buffer)
-                            .sendToTarget();
-                } catch (IOException e) {
-                    break;
-                }
-            }
-        }
-     
-        /* Call this from the main activity to send data to the remote device */
-        public void write(byte[] bytes) {
-            try {
-                mmOutStream.write(bytes);
-            } catch (IOException e) { }
-        }
-     
-        /* Call this from the main activity to shutdown the connection */
-        public void cancel() {
-            try {
-                mmSocket.close();
-            } catch (IOException e) { }
-        }
-
     }
     
 }
