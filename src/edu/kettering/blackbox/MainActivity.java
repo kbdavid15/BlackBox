@@ -30,6 +30,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
+	// UI elements
+	private ListView listViewPairedDevices;
+	
 	private static final int REQUEST_ENABLE_BT = 1;
 	private BluetoothReceiver btReceiver;
 	public BluetoothDevice btOBD2device;
@@ -57,7 +60,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         
         TextView textView = (TextView)findViewById(R.id.textView1);
-        ListView listViewPairedDevices = (ListView)findViewById(R.id.listViewPairedDevices);
+        listViewPairedDevices = (ListView)findViewById(R.id.listViewPairedDevices);
         // create an array adapter for the listview
         mArrayAdapterPairedDevices = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
         
@@ -75,6 +78,8 @@ public class MainActivity extends Activity {
         if (!mBluetoothAdapter.isEnabled()) {
         	Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         	startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        } else {
+        	populatePairedDevices();
         }
         
         // add event listener for changes in bluetooth state (such as being turned off during operation)
@@ -82,15 +87,7 @@ public class MainActivity extends Activity {
         
         //TODO paired device list not populated if bluetooth is not enabled before starting the app
         // find devices (first look through paired devices to find the correct one)
-        pairedDevices = mBluetoothAdapter.getBondedDevices();
-        if (pairedDevices.size() > 0) {        	
-        	// Loop through paired devices
-        	for (BluetoothDevice device : pairedDevices) {
-        		// Add the name and address to an array adapter to show in a ListView
-        		mArrayAdapterPairedDevices.add(device.getName() + "\n" + device.getAddress());
-        	}
-        	listViewPairedDevices.setAdapter(mArrayAdapterPairedDevices);
-        }
+        
                
         // If the correct device is not already paired, show the bluetooth settings window to let the user pair the device
 //        startActivity(new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS));
@@ -121,6 +118,18 @@ public class MainActivity extends Activity {
 //        }
     }
     
+    private void populatePairedDevices() {
+    	pairedDevices = mBluetoothAdapter.getBondedDevices();
+        if (pairedDevices.size() > 0) {        	
+        	// Loop through paired devices
+        	for (BluetoothDevice device : pairedDevices) {
+        		// Add the name and address to an array adapter to show in a ListView
+        		mArrayAdapterPairedDevices.add(device.getName() + "\n" + device.getAddress());
+        	}
+        	listViewPairedDevices.setAdapter(mArrayAdapterPairedDevices);
+        }
+    }
+    
     private OnItemClickListener selectPairedDeviceListener = new OnItemClickListener() {
     	@Override
     	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -140,6 +149,7 @@ public class MainActivity extends Activity {
     private boolean tryConnectDevice() {
     	// instantiate the Bluetooth service
     	mBluetoothService = new BluetoothService(this, mHandler);
+    	
     	return false;
     }
     
@@ -158,6 +168,8 @@ public class MainActivity extends Activity {
     		if (resultCode == RESULT_OK) {
     			//TODO catch bt error, or user did not enable bt
     			Toast.makeText(getApplicationContext(), "Bluetooth enabled", Toast.LENGTH_SHORT).show();
+    			// set up the paired device list
+    			populatePairedDevices();
     		} else if (resultCode == RESULT_CANCELED){
     			Toast.makeText(getApplicationContext(), "Error: Bluetooth must be enabled for this app to work", Toast.LENGTH_LONG).show();
     		}
