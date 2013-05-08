@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import edu.kettering.blackbox.bluetooth.BluetoothReceiver;
-//import edu.kettering.blackbox.bluetooth.BluetoothService;
+import edu.kettering.blackbox.bluetooth.BluetoothService;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -34,13 +34,22 @@ public class MainActivity extends Activity {
 	private BluetoothReceiver btReceiver;
 	public BluetoothDevice btOBD2device;
 	public static BluetoothAdapter mBluetoothAdapter;
+	
 	private Set<BluetoothDevice> pairedDevices;
-	private static Handler mHandler;
 	private final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 	private final String NAME = "BluetoothOBD2Service";
+	
 	// The service that connects to the device
-//	private BluetoothService mBluetoothService;
+	private BluetoothService mBluetoothService;
+	
 	private ArrayAdapter<String> mArrayAdapterPairedDevices;
+	
+	/**
+	 * 
+	 */
+	private static Handler mHandler = new Handler() {
+    	
+    };
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,13 +72,9 @@ public class MainActivity extends Activity {
         	return;
         }
         // make sure bluetooth is enabled, otherwise ask user to enable it
-        try {
-	        if (!mBluetoothAdapter.isEnabled()) {
-	        	Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-	        	startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-	        }
-        } catch (Exception e) {
-        	textView.setText(e.toString());
+        if (!mBluetoothAdapter.isEnabled()) {
+        	Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        	startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
         
         // add event listener for changes in bluetooth state (such as being turned off during operation)
@@ -86,31 +91,7 @@ public class MainActivity extends Activity {
         	}
         	listViewPairedDevices.setAdapter(mArrayAdapterPairedDevices);
         }
-        
-/*        // discover new devices
-        if (!mBluetoothAdapter.startDiscovery()) {
-        	Toast.makeText(this, "Discovery failed", Toast.LENGTH_SHORT).show();
-        	return;
-        }
-      
-        // receiver for when a device is found
-        final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				String action = intent.getAction();
-				// When discovery finds a device
-				if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-					// get the BluetoothDevice object from the Intent
-					BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-					// add the name and address to an array adapter to show in a listview
-					mArrayAdapterNewDevices.add(device.getName() + "\n" + device.getAddress());
-				}				
-			}        	
-        };
-        // Register the BroadcastReceiver
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
-*/        
+               
         // If the correct device is not already paired, show the bluetooth settings window to let the user pair the device
 //        startActivity(new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS));
         
@@ -123,8 +104,7 @@ public class MainActivity extends Activity {
 //        		btOBD2device = device;
 //        		break;
 //        	}
-//        }
-        
+//        }        
 //        // if the device is found
 //        if (btOBD2device != null) {
 //        	// configure the handler
@@ -133,11 +113,9 @@ public class MainActivity extends Activity {
 //        		public void handleMessage(Message msg) {
 //        			
 //        		}
-//        	};
-//        	
+//        	};//        	
 ////        	ConnectThread thread = new ConnectThread(btOBD2device);
-////        	thread.run();
-//        	
+////        	thread.run();//        	
 //        	AcceptThread thread = new AcceptThread();
 //        	thread.run();
 //        }
@@ -148,14 +126,24 @@ public class MainActivity extends Activity {
     	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     		// connect to the device that the user chose
     		btOBD2device = (BluetoothDevice) pairedDevices.toArray()[position];
-    		
+    		tryConnectDevice();
     		
 			Toast.makeText(getBaseContext(), btOBD2device.getName(), Toast.LENGTH_LONG).show();
 		}
     	
     };
-
-
+    
+    /**
+     * Attempts to connect to btOBD2device 
+     * @return	False if the connection failed, true otherwise
+     */
+    private boolean tryConnectDevice() {
+    	// instantiate the Bluetooth service
+    	mBluetoothService = new BluetoothService(this, mHandler);
+    	return false;
+    }
+    
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
