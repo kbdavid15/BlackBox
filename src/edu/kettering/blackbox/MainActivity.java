@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import java.util.Set;
 import java.util.UUID;
 
+import edu.kettering.blackbox.bluetooth.BluetoothReceiver;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -111,22 +113,22 @@ public class MainActivity extends Activity {
         	}
         }
         
-        // if the device is found
-        if (btOBD2device != null) {
-        	// configure the handler
-        	mHandler = new Handler() {
-        		@Override
-        		public void handleMessage(Message msg) {
-        			
-        		}
-        	};
-        	
-//        	ConnectThread thread = new ConnectThread(btOBD2device);
+//        // if the device is found
+//        if (btOBD2device != null) {
+//        	// configure the handler
+//        	mHandler = new Handler() {
+//        		@Override
+//        		public void handleMessage(Message msg) {
+//        			
+//        		}
+//        	};
+//        	
+////        	ConnectThread thread = new ConnectThread(btOBD2device);
+////        	thread.run();
+//        	
+//        	AcceptThread thread = new AcceptThread();
 //        	thread.run();
-        	
-        	AcceptThread thread = new AcceptThread();
-        	thread.run();
-        }
+//        }
     }
 
 

@@ -1,4 +1,4 @@
-package edu.kettering.blackbox;
+package edu.kettering.blackbox.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
