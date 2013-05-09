@@ -6,5 +6,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="paired_devices">Paired Devices</string>
     <string name="bt_not_enabled_leaving">blah</string>
+    <string name="title_activity_setup">SetupActivity</string>
+    <string name="startup_greeting">Welcome</string>
 
 </resources>

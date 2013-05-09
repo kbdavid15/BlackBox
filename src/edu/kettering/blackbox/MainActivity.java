@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.AdapterView;
@@ -34,6 +35,8 @@ public class MainActivity extends Activity {
 	private ListView listViewPairedDevices;
 	
 	private static final int REQUEST_ENABLE_BT = 1;
+	private static final int REQUEST_SHOW_SETTINGS = 2;
+	
 	private BluetoothReceiver btReceiver;
 	public BluetoothDevice btOBD2device;
 	public static BluetoothAdapter mBluetoothAdapter;
@@ -162,6 +165,14 @@ public class MainActivity extends Activity {
     }
     
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	if (item.getItemId() == R.id.action_settings) {
+    		startActivityForResult(new Intent(this, SettingsActivity.class), REQUEST_SHOW_SETTINGS);
+    	}    	
+		return false;    	
+    }
+    
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     	switch (requestCode) {
     	case REQUEST_ENABLE_BT:
@@ -173,6 +184,8 @@ public class MainActivity extends Activity {
     		} else if (resultCode == RESULT_CANCELED){
     			Toast.makeText(getApplicationContext(), "Error: Bluetooth must be enabled for this app to work", Toast.LENGTH_LONG).show();
     		}
+    		break;
+    	case REQUEST_SHOW_SETTINGS:
     		break;
     	default:
     		
